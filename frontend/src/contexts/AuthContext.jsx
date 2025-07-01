@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect } from "react"
 import api from "../utils/api"
-import toast from "react-hot-toast"
 
 const AuthContext = createContext()
 
@@ -55,10 +54,6 @@ export const AuthProvider = ({ children }) => {
       setUser(user)
 
       console.log("✅ Registration successful")
-
-      // Show welcome message for new users
-      toast.success(`Welcome to EduMateAI, ${user.name}!`)
-
       return response.data
     } catch (error) {
       console.error("❌ Registration error:", error.response?.data || error.message)
@@ -82,10 +77,6 @@ export const AuthProvider = ({ children }) => {
       setUser(user)
 
       console.log("✅ Login successful")
-
-      // Show welcome back message with username
-      toast.success(`Welcome back, ${user.name}!`)
-
       return response.data
     } catch (error) {
       console.error("❌ Login error:", error.response?.data || error.message)
@@ -97,7 +88,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token")
     delete api.defaults.headers.common["Authorization"]
     setUser(null)
-    toast.success("Logged out successfully!")
   }
 
   const value = {

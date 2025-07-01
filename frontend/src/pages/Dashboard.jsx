@@ -1,32 +1,30 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
-import {
-  BookOpen,
-  Calendar,
-  AlertTriangle,
-  CheckCircle,
-  Circle,
-  PlayCircle,
-  TrendingUp,
-  Star,
-  Target,
-  Clock,
-} from "lucide-react"
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js"
+import MotivationalQuote from "../components/MotivationalQuote"
+import { BookOpen, Calendar, Clock, CheckCircle, TrendingUp } from "lucide-react"
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
 import { Doughnut } from "react-chartjs-2"
 import api from "../utils/api"
 import LoadingSpinner from "../components/LoadingSpinner"
+import SmartPriorityDashboard from "../components/SmartPriorityDashboard"
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement)
+ChartJS.register(ArcElement, Tooltip, Legend)
 
 const Dashboard = () => {
   const { user } = useAuth()
   const [stats, setStats] = useState(null)
   const [assignments, setAssignments] = useState([])
   const [loading, setLoading] = useState(true)
+
+  // Get greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return "Good morning"
+    if (hour < 17) return "Good afternoon"
+    return "Good evening"
+  }
 
   useEffect(() => {
     fetchDashboardData()
@@ -38,7 +36,6 @@ const Dashboard = () => {
         api.get("/dashboard/stats"),
         api.get("/assignments"),
       ])
-
       setStats(statsResponse.data.stats)
       setAssignments(assignmentsResponse.data.assignments.slice(0, 5))
     } catch (error) {
@@ -48,62 +45,37 @@ const Dashboard = () => {
     }
   }
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "submitted":
-        return <CheckCircle className="h-5 w-5 text-emerald-600" />
-      case "in_progress":
-        return <PlayCircle className="h-5 w-5 text-blue-600" />
-      case "pending":
-        return <Clock className="h-5 w-5 text-red-600" />
-      default:
-        return <Circle className="h-5 w-5 text-red-600" />
-    }
-  }
-
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "high":
-        return "bg-gradient-to-r from-red-500 to-red-600"
-      case "medium":
-        return "bg-gradient-to-r from-amber-500 to-orange-500"
-      case "low":
-        return "bg-gradient-to-r from-emerald-500 to-green-500"
-      default:
-        return "bg-gradient-to-r from-gray-500 to-gray-600"
-    }
-  }
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
-  }
-
-  const isOverdue = (deadline) => {
-    return new Date(deadline) < new Date() && new Date(deadline).toDateString() !== new Date().toDateString()
+  const handleTaskComplete = () => {
+    // Refresh dashboard data when a task is completed
+    fetchDashboardData()
   }
 
   if (loading) {
     return <LoadingSpinner />
   }
 
-  const totalAssignments = stats
-    ? stats.assignments.pending + stats.assignments.in_progress + stats.assignments.submitted
-    : 0
-  const completionRate = totalAssignments > 0 ? (stats.assignments.submitted / totalAssignments) * 100 : 0
+  // Use backend calculated stats
+  const totalAssignments = stats?.total_assignments || 0
+  const dueAssignments = stats?.due_assignments || 0
+  const completedAssignments = stats?.completed_assignments || 0
+  const completionRate = stats?.completion_rate || 0
 
-  // Updated Chart data with red for pending
+  // Simplified Chart data with dark colors
   const assignmentStatusData = {
     labels: ["Pending", "In Progress", "Submitted"],
     datasets: [
       {
-        data: [stats?.assignments.pending || 0, stats?.assignments.in_progress || 0, stats?.assignments.submitted || 0],
-        backgroundColor: ["#EF4444", "#3B82F6", "#10B981"], // Changed first color from gray to red
-        borderWidth: 0,
-        hoverBackgroundColor: ["#DC2626", "#2563EB", "#059669"],
+        data: [stats?.assignments?.pending || 0, stats?.assignments?.in_progress || 0, completedAssignments],
+        backgroundColor: [
+          "#DC2626", // Dark red for pending
+          "#2563EB", // Dark blue for in progress
+          "#16A34A", // Dark green for submitted
+        ],
+        borderColor: ["#DC2626", "#2563EB", "#16A34A"],
+        borderWidth: 2,
+        cutout: "65%",
+        borderRadius: 4,
+        spacing: 1,
       },
     ],
   }
@@ -117,211 +89,165 @@ const Dashboard = () => {
         labels: {
           padding: 20,
           usePointStyle: true,
+          pointStyle: "circle",
           font: {
-            size: 12,
-            weight: "500",
+            size: 14,
+            weight: "600",
           },
+          color: "#374151",
         },
       },
       tooltip: {
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        backgroundColor: "rgba(17, 24, 39, 0.9)",
         titleColor: "white",
         bodyColor: "white",
-        borderColor: "rgba(255, 255, 255, 0.1)",
+        borderColor: "rgba(156, 163, 175, 0.3)",
         borderWidth: 1,
+        cornerRadius: 8,
+        callbacks: {
+          label: (context) => {
+            const label = context.label || ""
+            const value = context.parsed
+            return `${label}: ${value} tasks`
+          },
+        },
       },
     },
+    layout: {
+      padding: 10,
+    },
+    cutout: "50%", // Reduce the cutout to make it less hollow
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <div className="space-y-8 p-6">
-        {/* Header Section */}
-        <div className="text-center">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            Dashboard
-          </h1>
-          <p className="text-sm sm:text-base md:text-lg text-gray-600">
-            Welcome back <span className="font-semibold text-blue-600">{user?.name}</span>! Here's an overview of your
-            academic progress.
-          </p>
+    <div className="min-h-screen">
+      <div className="space-y-6 p-6">
+        {/* Enhanced Welcome Header - Matching UI Theme */}
+        <div className="bg-slate-100 border border-slate-200 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-slate-100"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/30 rounded-full -translate-y-16 translate-x-16"></div>
+          <div className="relative text-center">
+            <h1 className="text-2xl font-bold text-slate-800 mb-2">
+              {getGreeting()}, {user?.name}! 👋
+            </h1>
+            <p className="text-slate-600 leading-relaxed font-medium">
+              Ready to tackle your academic goals today? Here's your progress overview.
+            </p>
+          </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4">
+        {/* Motivational Quote - Smaller with Blue-White Gradient */}
+        <MotivationalQuote context="time-based" />
+
+        {/* Smart Priority Dashboard - Smaller with Blue-White Gradient */}
+        <SmartPriorityDashboard assignments={assignments} onTaskComplete={handleTaskComplete} />
+
+        {/* Smaller Stats Cards */}
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
           {/* Total Subjects Card */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-sm font-medium mb-1">Total Subjects</p>
-                <p className="text-3xl font-bold">{stats?.subjects || 0}</p>
-              </div>
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <BookOpen className="h-8 w-8 text-white" />
-              </div>
-            </div>
-          </div>
-
-          {/* Upcoming Card */}
-          <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-emerald-100 text-sm font-medium mb-1">Upcoming</p>
-                <p className="text-3xl font-bold">{stats?.upcoming || 0}</p>
-              </div>
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <Calendar className="h-8 w-8 text-white" />
-              </div>
-            </div>
-          </div>
-
-          {/* Overdue Card */}
-          <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-red-100 text-sm font-medium mb-1">Overdue</p>
-                <p className="text-3xl font-bold">{stats?.overdue || 0}</p>
-              </div>
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <AlertTriangle className="h-8 w-8 text-white" />
-              </div>
-            </div>
-          </div>
-
-          {/* Completion Rate Card */}
           <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm font-medium mb-1">Completion Rate</p>
-                <p className="text-3xl font-bold">{Math.round(completionRate)}%</p>
+                <p className="text-purple-100 text-xs font-semibold mb-1">Total Subjects</p>
+                <p className="text-3xl font-bold">{stats?.subjects || 0}</p>
               </div>
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <TrendingUp className="h-8 w-8 text-white" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Charts and Recent Assignments */}
-        <div className="grid gap-6 sm:gap-8 lg:grid-cols-2">
-          {/* Assignment Status Chart */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-100">
-            <div className="flex items-center mb-4 sm:mb-6">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg mr-3">
-                <Target className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-800">Assignment Status</h3>
-            </div>
-            <div className="h-64 sm:h-72">
-              <Doughnut data={assignmentStatusData} options={chartOptions} />
-            </div>
-          </div>
-
-          {/* Recent Assignments */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-100">
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg mr-3">
-                  <Star className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-800">Recent Assignments</h3>
-              </div>
-              <Link
-                to="/dashboard/assignments"
-                className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-semibold hover:underline transition-colors"
-              >
-                View all →
-              </Link>
-            </div>
-            <div className="space-y-4">
-              {assignments.length > 0 ? (
-                assignments.map((assignment) => (
-                  <div
-                    key={assignment.id}
-                    className={`flex items-center space-x-4 p-4 rounded-xl border-l-4 transition-all duration-200 hover:shadow-md ${
-                      isOverdue(assignment.deadline) && assignment.status !== "submitted"
-                        ? "bg-red-50 border-red-400 hover:bg-red-100"
-                        : "bg-gray-50 border-gray-200 hover:bg-gray-100"
-                    }`}
-                  >
-                    <div className="flex-shrink-0">{getStatusIcon(assignment.status)}</div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{assignment.title}</p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <div
-                          className="w-3 h-3 rounded-full shadow-sm"
-                          style={{ backgroundColor: assignment.subject_color }}
-                        />
-                        <span className="text-xs text-gray-600 font-medium">{assignment.subject_name}</span>
-                      </div>
-                    </div>
-                    <div className="flex-shrink-0 text-right">
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full shadow-sm ${getPriorityColor(assignment.priority)}`} />
-                        <span
-                          className={`text-xs font-medium ${
-                            isOverdue(assignment.deadline) && assignment.status !== "submitted"
-                              ? "text-red-600"
-                              : "text-gray-600"
-                          }`}
-                        >
-                          {formatDate(assignment.deadline)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-12">
-                  <div className="p-4 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                    <Calendar className="h-10 w-10 text-blue-600" />
-                  </div>
-                  <p className="text-gray-600 mb-4 font-medium">No assignments yet</p>
-                  <Link
-                    to="/dashboard/assignments"
-                    className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-                  >
-                    Create your first assignment
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
-          <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
-            <div className="p-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg mr-3">
-              <Star className="h-6 w-6 text-white" />
-            </div>
-            Quick Actions
-          </h3>
-          <div className="grid gap-6 md:grid-cols-2">
-            <Link
-              to="/dashboard/subjects"
-              className="group flex items-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 border border-blue-200 hover:border-blue-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-200">
+              <div className="p-3 bg-white/25 rounded-xl">
                 <BookOpen className="h-8 w-8 text-white" />
               </div>
+            </div>
+          </div>
+
+          {/* Total Assignments Card */}
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="font-bold text-gray-900 text-lg">Manage Subjects</p>
-                <p className="text-sm text-blue-700 font-medium">Add or organize your subjects</p>
+                <p className="text-blue-100 text-xs font-semibold mb-1">Total Assignments</p>
+                <p className="text-3xl font-bold">{totalAssignments}</p>
               </div>
-            </Link>
-            <Link
-              to="/dashboard/assignments"
-              className="group flex items-center p-6 bg-gradient-to-br from-emerald-50 to-green-100 rounded-xl hover:from-emerald-100 hover:to-green-200 transition-all duration-300 border border-emerald-200 hover:border-emerald-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              <div className="p-3 bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-200">
+              <div className="p-3 bg-white/25 rounded-xl">
                 <Calendar className="h-8 w-8 text-white" />
               </div>
+            </div>
+          </div>
+
+          {/* Due Assignments Card */}
+          <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="font-bold text-gray-900 text-lg">Track Assignments</p>
-                <p className="text-sm text-emerald-700 font-medium">Add new assignments and deadlines</p>
+                <p className="text-orange-100 text-xs font-semibold mb-1">Due Assignments</p>
+                <p className="text-3xl font-bold">{dueAssignments}</p>
+                <p className="text-orange-200 text-xs mt-1">{dueAssignments > 0 ? "Need completion" : "All done!"}</p>
               </div>
-            </Link>
+              <div className="p-3 bg-white/25 rounded-xl">
+                <Clock className="h-8 w-8 text-white" />
+              </div>
+            </div>
+          </div>
+
+          {/* Completed Assignments Card */}
+          <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-xs font-semibold mb-1">Completed Assignments</p>
+                <p className="text-3xl font-bold">{completedAssignments}</p>
+              </div>
+              <div className="p-3 bg-white/25 rounded-xl">
+                <CheckCircle className="h-8 w-8 text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Progress Section */}
+        {completionRate > 0 && (
+          <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 rounded-2xl p-6 border-2 border-green-200 shadow-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                  <TrendingUp className="mr-2 h-5 w-5 text-green-600" />
+                  Your Amazing Progress
+                </h3>
+                <div className="w-full bg-green-200 rounded-full h-3 mb-3">
+                  <div
+                    className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 h-3 rounded-full transition-all duration-1000"
+                    style={{ width: `${completionRate}%` }}
+                  ></div>
+                </div>
+                <p className="text-green-800 font-semibold">
+                  {completionRate >= 80
+                    ? "🎉 Outstanding! You're crushing your goals!"
+                    : completionRate >= 60
+                      ? "💪 Fantastic progress! Keep it up!"
+                      : "🚀 Great start! Every step counts!"}
+                </p>
+                <div className="mt-2 text-sm text-green-700">
+                  <span className="font-semibold">{completedAssignments}</span> out of{" "}
+                  <span className="font-semibold">{totalAssignments}</span> assignments completed
+                  {dueAssignments > 0 && (
+                    <span className="ml-3 text-orange-600 font-semibold">• {dueAssignments} assignments need work</span>
+                  )}
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-green-600 ml-4">{completionRate}%</div>
+            </div>
+          </div>
+        )}
+
+        {/* Simplified Assignment Status Chart */}
+        <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+          <div className="flex items-center mb-6">
+            <div className="p-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl mr-4">
+              <TrendingUp className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-800">Assignment Status Overview</h3>
+              <p className="text-gray-600 mt-1">Track your academic progress</p>
+            </div>
+          </div>
+          <div className="relative">
+            <div className="h-64">
+              <Doughnut data={assignmentStatusData} options={chartOptions} />
+            </div>
           </div>
         </div>
       </div>
