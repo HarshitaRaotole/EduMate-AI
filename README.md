@@ -2,9 +2,6 @@
 
 > **Your AI-Powered Study Companion** - Transform your academic journey with intelligent organization and progress tracking.
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-blue?style=for-the-badge)](https://your-app-name.vercel.app)
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-black?style=for-the-badge)](https://github.com/your-username/edumate-ai)
-
 ## ✨ What is EduMateAI?
 
 EduMateAI is a modern web application that helps students organize subjects, track assignments, and stay on top of their academic goals with intelligent reminders and beautiful progress visualization.
@@ -51,9 +48,9 @@ npm run dev
 
 Just connect your database and set your environment variables!
 
-## 📱 Screenshots
+## 📸 Screenshots
 
-*Coming soon - Add your beautiful app screenshots here*
+*Add your beautiful app screenshots here to showcase the elegant design*
 
 ## 🤝 Contributing
 
@@ -72,6 +69,6 @@ MIT License - feel free to use this project for learning and building amazing th
 
 **Built with ❤️ for students everywhere**
 
-[⭐ Star this repo](https://github.com/your-username/edumate-ai) • [🐛 Report Bug](https://github.com/your-username/edumate-ai/issues) • [💡 Request Feature](https://github.com/your-username/edumate-ai/issues)
+*EduMateAI - Empowering academic excellence through intelligent organization*
 
 </div>
