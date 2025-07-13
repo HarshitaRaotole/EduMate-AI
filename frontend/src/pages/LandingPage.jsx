@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
@@ -13,17 +12,14 @@ import {
   Mail,
   ChevronDown,
   LogOut,
-  Star,
   ArrowRight,
   CheckCircle,
   Menu,
   X,
-  Users,
-  Award,
-  Clock,
   Target,
   Brain,
   Lightbulb,
+  Sparkles,
 } from "lucide-react"
 
 const LandingPage = () => {
@@ -80,12 +76,13 @@ const LandingPage = () => {
     },
   ]
 
-  const stats = [
-    { number: "50K+", label: "Students", icon: Users },
-    { number: "98%", label: "Success Rate", icon: Award },
-    { number: "4.9", label: "Rating", icon: Star },
-    { number: "24/7", label: "Support", icon: Clock },
-  ]
+  // Removed the 'stats' array as it's no longer needed.
+  // const stats = [
+  //   { number: "50K+", label: "Students", icon: Users },
+  //   { number: "98%", label: "Success Rate", icon: Award },
+  //   { number: "4.9", label: "Rating", icon: Star },
+  //   { number: "24/7", label: "Support", icon: Clock },
+  // ]
 
   return (
     <div className="min-h-screen bg-white">
@@ -100,7 +97,6 @@ const LandingPage = () => {
               </div>
               <span className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">EduMateAI</span>
             </div>
-
             {/* Desktop Navigation - Hidden on mobile/tablet, visible on laptop+ */}
             <nav className="hidden xl:flex items-center space-x-4 2xl:space-x-6">
               {navigation.map((item) => (
@@ -117,7 +113,6 @@ const LandingPage = () => {
                 </Link>
               ))}
             </nav>
-
             {/* Right Side - Optimized for all screens */}
             <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0">
               {user ? (
@@ -136,7 +131,6 @@ const LandingPage = () => {
                     </div>
                     <ChevronDown className="h-3 w-3 lg:h-4 lg:w-4 text-gray-400" />
                   </button>
-
                   {/* User Dropdown */}
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-44 lg:w-48 bg-white rounded-xl shadow-xl ring-1 ring-black ring-opacity-5 z-50">
@@ -165,11 +159,10 @@ const LandingPage = () => {
                     to="/register"
                     className="px-4 lg:px-6 py-1.5 lg:py-2 text-sm lg:text-base bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg lg:rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl"
                   >
-                    Get Started
+                    Sign up
                   </Link>
                 </div>
               )}
-
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -180,7 +173,6 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-
         {/* Mobile Navigation Menu - Improved */}
         {mobileMenuOpen && (
           <div className="xl:hidden border-t border-gray-200 bg-white shadow-lg">
@@ -200,7 +192,6 @@ const LandingPage = () => {
                 </Link>
               ))}
             </div>
-
             {/* Mobile Auth Section */}
             {!user && (
               <div className="pt-4 pb-3 border-t border-gray-200">
@@ -217,12 +208,11 @@ const LandingPage = () => {
                     onClick={() => setMobileMenuOpen(false)}
                     className="block w-full px-4 py-3 text-center bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-colors"
                   >
-                    Get Started
+                    Sign up
                   </Link>
                 </div>
               </div>
             )}
-
             {/* Mobile User Section */}
             {user && (
               <div className="pt-4 pb-3 border-t border-gray-200">
@@ -249,7 +239,6 @@ const LandingPage = () => {
           </div>
         )}
       </header>
-
       {/* Hero Section - Fully Responsive */}
       <section className="relative bg-gradient-to-b from-blue-50 to-white py-12 sm:py-16 lg:py-20 xl:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -298,7 +287,6 @@ const LandingPage = () => {
                 )}
               </div>
             </div>
-
             {/* Right Content - Responsive Image */}
             <div className="relative order-1 lg:order-2">
               <div className="relative rounded-xl sm:rounded-2xl overflow-hidden shadow-xl sm:shadow-2xl">
@@ -315,19 +303,37 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Stats Section - Mobile Optimized */}
-      <section className="py-12 sm:py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-                </div>
-                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{stat.number}</p>
-                <p className="text-sm sm:text-base text-gray-600">{stat.label}</p>
-              </div>
-            ))}
+      {/* NEW: Personalized Learning Section */}
+      <section className="py-12 sm:py-16 bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-md">
+            <Sparkles className="h-6 w-6 sm:h-7 sm:w-7 text-blue-600" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+            Your Academic Journey, Personalized by AI
+          </h2>
+          <p className="text-base sm:text-lg lg:text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
+            EduMateAI leverages cutting-edge artificial intelligence to understand your unique learning style, adapt to
+            your pace, and provide tailored recommendations, ensuring you get the most out of every study session.
+          </p>
+          <div className="mt-8 sm:mt-10">
+            {user ? (
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white text-sm sm:text-base font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+              >
+                Explore Your Personalized Dashboard
+                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+              </Link>
+            ) : (
+              <Link
+                to="/register"
+                className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white text-sm sm:text-base font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+              >
+                Start Your Personalized Plan
+                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+              </Link>
+            )}
           </div>
         </div>
       </section>
@@ -357,7 +363,6 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-
       {/* Study Planning Showcase - Mobile Optimized */}
       <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -406,7 +411,6 @@ const LandingPage = () => {
                 </div>
               </div>
             </div>
-
             <div className="relative order-1 lg:order-2">
               <img
                 src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
@@ -418,7 +422,6 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-
       {/* CTA Section - Mobile Optimized */}
       <section className="py-12 sm:py-16 lg:py-20 bg-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -461,14 +464,11 @@ const LandingPage = () => {
           )}
         </div>
       </section>
-
       {/* Use the Footer Component */}
       <Footer />
-
       {/* Click outside to close user menu */}
       {userMenuOpen && <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />}
     </div>
   )
 }
-
 export default LandingPage

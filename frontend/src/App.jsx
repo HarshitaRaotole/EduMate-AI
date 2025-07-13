@@ -1,11 +1,10 @@
 "use client"
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { useAuth } from "./contexts/AuthContext"
 import LandingPage from "./pages/LandingPage"
 import LoginPage from "./pages/LoginPage"
 import RegisterPage from "./pages/RegisterPage"
-import DashboardLayout from "./components/DashboardLayout"
+import DashboardLayout from "./components/DashboardLayout" // CORRECTED: Changed path from ./layouts to ./components
 import Dashboard from "./pages/Dashboard"
 import Subjects from "./pages/Subjects"
 import Assignments from "./pages/Assignments"
@@ -27,7 +26,8 @@ function App() {
         <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} />
 
         {/* Protected routes - only for logged-in users */}
-        <Route path="/dashboard" element={user ? <DashboardLayout /> : <Navigate to="/login" />}>
+        {/* Redirect to home page ("/") if user is not authenticated */}
+        <Route path="/dashboard" element={user ? <DashboardLayout /> : <Navigate to="/" />}>
           <Route index element={<Dashboard />} />
           <Route path="subjects" element={<Subjects />} />
           <Route path="assignments" element={<Assignments />} />

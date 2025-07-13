@@ -8,6 +8,11 @@ const authRoutes = require("./routes/auth")
 const subjectRoutes = require("./routes/subjects")
 const assignmentRoutes = require("./routes/assignments")
 const dashboardRoutes = require("./routes/dashboard")
+const chatRoutes = require("./routes/chat")
+const reminderRoutes = require("./routes/reminders") // ADDED: Import reminder routes
+
+// NEW: Import your specific authentication middleware
+const { authenticateToken } = require("./middleware/auth") // Adjust path if your auth.js is elsewhere
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -15,7 +20,7 @@ const PORT = process.env.PORT || 5000
 // Security middleware
 app.use(
   helmet({
-    contentSecurityPolicy: false, // Disable for Vercel compatibility
+    contentSecurityPolicy: false,
   }),
 )
 
@@ -28,8 +33,8 @@ app.use(
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
 })
 app.use(limiter)
 
@@ -37,11 +42,16 @@ app.use(limiter)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Routes
+// Public routes (no authentication needed)
 app.use("/api/auth", authRoutes)
-app.use("/api/subjects", subjectRoutes)
-app.use("/api/assignments", assignmentRoutes)
-app.use("/api/dashboard", dashboardRoutes)
+app.use("/api/chat", chatRoutes) // Chat might be public or have its own auth logic
+
+// Protected routes (require authentication)
+// Apply YOUR authenticateToken middleware to routes that need user context (req.user.id)
+app.use("/api/subjects", authenticateToken, subjectRoutes)
+app.use("/api/assignments", authenticateToken, assignmentRoutes)
+app.use("/api/dashboard", authenticateToken, dashboardRoutes)
+app.use("/api/reminders", authenticateToken, reminderRoutes) // ADDED: Apply YOUR middleware here
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {

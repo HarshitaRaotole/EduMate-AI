@@ -1,23 +1,21 @@
 "use client"
-
 import { useState, useEffect } from "react"
 import { useAuth } from "../contexts/AuthContext"
 import MotivationalQuote from "../components/MotivationalQuote"
+import AIChatAssistant from "../components/AIChatAssistant" // Import AIChatAssistant
+// REMOVED: import SmartReminders from "../components/SmartReminders"
 import { BookOpen, Calendar, Clock, CheckCircle, TrendingUp } from "lucide-react"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
 import { Doughnut } from "react-chartjs-2"
 import api from "../utils/api"
 import LoadingSpinner from "../components/LoadingSpinner"
 import SmartPriorityDashboard from "../components/SmartPriorityDashboard"
-
 ChartJS.register(ArcElement, Tooltip, Legend)
-
 const Dashboard = () => {
   const { user } = useAuth()
   const [stats, setStats] = useState(null)
   const [assignments, setAssignments] = useState([])
   const [loading, setLoading] = useState(true)
-
   // Get greeting based on time of day
   const getGreeting = () => {
     const hour = new Date().getHours()
@@ -25,11 +23,9 @@ const Dashboard = () => {
     if (hour < 17) return "Good afternoon"
     return "Good evening"
   }
-
   useEffect(() => {
     fetchDashboardData()
   }, [])
-
   const fetchDashboardData = async () => {
     try {
       const [statsResponse, assignmentsResponse] = await Promise.all([
@@ -44,22 +40,18 @@ const Dashboard = () => {
       setLoading(false)
     }
   }
-
   const handleTaskComplete = () => {
     // Refresh dashboard data when a task is completed
     fetchDashboardData()
   }
-
   if (loading) {
     return <LoadingSpinner />
   }
-
   // Use backend calculated stats
   const totalAssignments = stats?.total_assignments || 0
   const dueAssignments = stats?.due_assignments || 0
   const completedAssignments = stats?.completed_assignments || 0
   const completionRate = stats?.completion_rate || 0
-
   // Simplified Chart data with dark colors
   const assignmentStatusData = {
     labels: ["Pending", "In Progress", "Submitted"],
@@ -79,7 +71,6 @@ const Dashboard = () => {
       },
     ],
   }
-
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -118,7 +109,6 @@ const Dashboard = () => {
     },
     cutout: "50%", // Reduce the cutout to make it less hollow
   }
-
   return (
     <div className="min-h-screen">
       <div className="space-y-6 p-6">
@@ -133,15 +123,19 @@ const Dashboard = () => {
             <p className="text-slate-600 leading-relaxed font-medium">
               Ready to tackle your academic goals today? Here's your progress overview.
             </p>
+            {/* AI Assistant Highlight */}
+            <div className="mt-4 inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full text-sm font-medium text-blue-800">
+              <span className="mr-2">🤖</span>
+              Need help? Ask EduMate AI using the chat button below!
+            </div>
           </div>
         </div>
-
         {/* Motivational Quote - Smaller with Blue-White Gradient */}
         <MotivationalQuote context="time-based" />
-
         {/* Smart Priority Dashboard - Smaller with Blue-White Gradient */}
         <SmartPriorityDashboard assignments={assignments} onTaskComplete={handleTaskComplete} />
-
+        {/* REMOVED: Smart Reminders Section */}
+        {/* <SmartReminders /> */}
         {/* Smaller Stats Cards */}
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
           {/* Total Subjects Card */}
@@ -156,7 +150,6 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-
           {/* Total Assignments Card */}
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between">
@@ -169,7 +162,6 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-
           {/* Due Assignments Card */}
           <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between">
@@ -183,7 +175,6 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-
           {/* Completed Assignments Card */}
           <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between">
@@ -197,7 +188,6 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-
         {/* Progress Section */}
         {completionRate > 0 && (
           <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 rounded-2xl p-6 border-2 border-green-200 shadow-lg">
@@ -232,7 +222,6 @@ const Dashboard = () => {
             </div>
           </div>
         )}
-
         {/* Simplified Assignment Status Chart */}
         <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
           <div className="flex items-center mb-6">
@@ -251,8 +240,9 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      {/* AI Chat Assistant - Floating Widget */}
+      <AIChatAssistant />
     </div>
   )
 }
-
 export default Dashboard

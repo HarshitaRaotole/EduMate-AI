@@ -1,13 +1,14 @@
 "use client"
-
 import { useState } from "react"
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
-import { GraduationCap, Home, BookOpen, Calendar, Menu, X, LogOut, ChevronDown } from "lucide-react"
+import { GraduationCap, Home, BookOpen, Calendar, Menu, X, LogOut, ChevronDown, Bell } from "lucide-react"
+import SmartReminders from "../components/SmartReminders"
 
 const DashboardLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [showReminders, setShowReminders] = useState(false)
   const { user, logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
@@ -21,7 +22,8 @@ const DashboardLayout = () => {
 
   const handleLogout = () => {
     logout()
-    navigate("/login")
+    console.log("DEBUG: Attempting to redirect to home page using window.location.href.")
+    window.location.href = "/" // CHANGED: Force a full page reload to the home page
   }
 
   const isActive = (href) => {
@@ -52,7 +54,6 @@ const DashboardLayout = () => {
               </div>
               <span className="text-xl font-bold text-gray-900">EduMateAI</span>
             </div>
-
             {/* Center Navigation */}
             <nav className="hidden md:flex items-center space-x-6">
               {navigation.map((item) => (
@@ -60,22 +61,38 @@ const DashboardLayout = () => {
                   key={item.name}
                   to={item.href}
                   className={`
-              flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200
-              ${
-                isActive(item.href)
-                  ? "text-blue-600 bg-blue-50 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }
-            `}
+                    flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200
+                    ${
+                      isActive(item.href)
+                        ? "text-blue-600 bg-blue-50 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }
+                  `}
                 >
                   <item.icon className="h-4 w-4" />
                   <span>{item.name}</span>
                 </Link>
               ))}
             </nav>
-
-            {/* Right Side - User Menu */}
+            {/* Right Side - User Menu and Reminders */}
             <div className="flex items-center space-x-4">
+              {/* Bell Icon for Smart Reminders */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowReminders(!showReminders)}
+                  className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                  aria-label="Toggle Smart Reminders"
+                >
+                  <Bell className="h-5 w-5" />
+                </button>
+                {/* Smart Reminders Popover */}
+                {showReminders && (
+                  <div className="absolute right-0 mt-2 w-80 max-h-[calc(100vh-5rem)] overflow-y-auto bg-white rounded-xl shadow-xl ring-1 ring-black ring-opacity-5 z-50 p-4">
+                    <SmartReminders />
+                  </div>
+                )}
+              </div>
+
               {/* Logged In User Menu */}
               <div className="hidden md:block relative">
                 <button
@@ -91,7 +108,6 @@ const DashboardLayout = () => {
                   </div>
                   <ChevronDown className="h-4 w-4 text-gray-400" />
                 </button>
-
                 {/* User Dropdown */}
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl ring-1 ring-black ring-opacity-5 z-50">
@@ -107,7 +123,6 @@ const DashboardLayout = () => {
                   </div>
                 )}
               </div>
-
               {/* Mobile Menu Button */}
               <div className="md:hidden">
                 <button
@@ -121,7 +136,6 @@ const DashboardLayout = () => {
           </div>
         </div>
       </header>
-
       {/* Mobile Navigation Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-gray-200 bg-white">
@@ -132,16 +146,15 @@ const DashboardLayout = () => {
                 to={item.href}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`
-            flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium
-            ${isActive(item.href) ? "text-blue-600 bg-blue-50" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"}
-          `}
+                  flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium
+                  ${isActive(item.href) ? "text-blue-600 bg-blue-50" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"}
+                `}
               >
                 <item.icon className="h-4 w-4" />
                 <span>{item.name}</span>
               </Link>
             ))}
           </div>
-
           {/* Mobile User Section */}
           <div className="pt-4 pb-3 border-t border-gray-200">
             <div className="flex items-center px-5">
@@ -165,14 +178,13 @@ const DashboardLayout = () => {
           </div>
         </div>
       )}
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <Outlet />
       </main>
-
-      {/* Click outside to close user menu */}
+      {/* Click outside to close user menu and reminders */}
       {userMenuOpen && <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />}
+      {showReminders && <div className="fixed inset-0 z-40" onClick={() => setShowReminders(false)} />}
     </div>
   )
 }
