@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { MessageCircle, X, Send, Bot, User, Sparkles } from "lucide-react"
+import { MessageCircle, X, Send, Bot, User, Sparkles, Loader2 } from "lucide-react" // Added Loader2 for consistency
 import api from "../utils/api" // Assuming 'api' is configured to point to your backend
 
 const AIChatAssistant = () => {
@@ -88,7 +88,6 @@ const AIChatAssistant = () => {
             </div>
           )}
         </button>
-
         {/* Tooltip */}
         {!isOpen && (
           <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
@@ -99,7 +98,13 @@ const AIChatAssistant = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 flex flex-col overflow-hidden">
+        <div
+          className="fixed bottom-24
+                     w-[calc(100vw-2rem)] max-w-sm mx-auto left-1/2 -translate-x-1/2
+                     md:w-96 md:right-6 md:left-auto md:-translate-x-0
+                     h-[500px] max-h-[calc(100vh-8rem)]
+                     bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 flex flex-col overflow-hidden"
+        >
           {/* Chat Header */}
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 text-white">
             <div className="flex items-center justify-between">
@@ -190,7 +195,7 @@ const AIChatAssistant = () => {
                 disabled={isLoading || !input.trim()}
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full p-2 transition-all duration-200"
               >
-                <Send className="h-4 w-4" />
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </button>
             </form>
           </div>

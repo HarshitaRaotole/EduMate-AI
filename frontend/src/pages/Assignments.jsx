@@ -40,7 +40,6 @@ const Assignments = () => {
   const fetchData = async () => {
     try {
       const [assignmentsResponse, subjectsResponse] = await Promise.all([api.get("/assignments"), api.get("/subjects")])
-
       setAssignments(assignmentsResponse.data.assignments)
       setSubjects(subjectsResponse.data.subjects)
     } catch (error) {
@@ -53,16 +52,13 @@ const Assignments = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
-
     try {
       const url = editingAssignment ? `/assignments/${editingAssignment.id}` : "/assignments"
       const method = editingAssignment ? "put" : "post"
-
       await api[method](url, {
         ...formData,
         subject_id: Number.parseInt(formData.subject_id),
       })
-
       await fetchData()
       setShowModal(false)
       setEditingAssignment(null)
@@ -92,7 +88,6 @@ const Assignments = () => {
     if (!confirm("Are you sure you want to delete this assignment?")) {
       return
     }
-
     try {
       await api.delete(`/assignments/${id}`)
       setAssignments(assignments.filter((assignment) => assignment.id !== id))
@@ -183,11 +178,9 @@ const Assignments = () => {
   const sortedAssignments = [...assignments].sort((a, b) => {
     const deadlineA = new Date(a.deadline).getTime()
     const deadlineB = new Date(b.deadline).getTime()
-
     if (deadlineA !== deadlineB) {
       return deadlineA - deadlineB
     }
-
     const priorityOrder = { high: 3, medium: 2, low: 1 }
     return priorityOrder[b.priority] - priorityOrder[a.priority]
   })
@@ -216,7 +209,6 @@ const Assignments = () => {
             Add Assignment
           </button>
         </div>
-
         {subjects.length === 0 && (
           <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-2xl p-6 shadow-lg">
             <div className="flex items-center">
@@ -232,7 +224,6 @@ const Assignments = () => {
             </div>
           </div>
         )}
-
         {sortedAssignments.length > 0 ? (
           <div className="space-y-6">
             {sortedAssignments.map((assignment) => (
@@ -244,15 +235,18 @@ const Assignments = () => {
                     : "border-blue-400"
                 }`}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
+                {/* Changed this div to allow wrapping on smaller screens */}
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex-1 min-w-0">
+                    {" "}
+                    {/* Added min-w-0 to allow content to shrink */}
                     <div className="flex items-center space-x-4 mb-3">
                       {getStatusIcon(assignment.status)}
-                      <h3 className="text-xl font-bold text-gray-900">{assignment.title}</h3>
+                      <h3 className="text-xl font-bold text-gray-900 truncate">{assignment.title}</h3>{" "}
+                      {/* Added truncate */}
                       <div className={`w-3 h-3 rounded-full shadow-sm ${getPriorityColor(assignment.priority)}`} />
                     </div>
-
-                    <div className="flex items-center space-x-6 text-sm text-gray-600 mb-4">
+                    <div className="flex flex-wrap items-center space-x-4 sm:space-x-6 text-sm text-gray-600 mb-4">
                       <div className="flex items-center space-x-2">
                         <div
                           className="w-4 h-4 rounded-full shadow-sm"
@@ -273,13 +267,12 @@ const Assignments = () => {
                         </span>
                       </div>
                     </div>
-
                     {assignment.description && (
                       <p className="text-gray-600 mb-4 leading-relaxed">{assignment.description}</p>
                     )}
                   </div>
-
-                  <div className="flex items-center space-x-4">
+                  {/* Adjusted spacing and added top margin for wrapped state */}
+                  <div className="flex items-center space-x-4 mt-4 sm:mt-0 sm:ml-4">
                     {getStatusBadge(assignment.status)}
                     <button
                       onClick={() => handleEdit(assignment)}
@@ -318,7 +311,6 @@ const Assignments = () => {
             )}
           </div>
         )}
-
         {/* Enhanced Modal */}
         {showModal && (
           <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -331,7 +323,6 @@ const Assignments = () => {
                   resetForm()
                 }}
               />
-
               <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <form onSubmit={handleSubmit}>
                   <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
@@ -340,7 +331,6 @@ const Assignments = () => {
                       {editingAssignment ? "Edit Assignment" : "Add New Assignment"}
                     </h3>
                   </div>
-
                   <div className="bg-white px-6 py-6 space-y-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Assignment Title</label>
@@ -353,7 +343,6 @@ const Assignments = () => {
                         required
                       />
                     </div>
-
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Subject</label>
                       <select
@@ -370,7 +359,6 @@ const Assignments = () => {
                         ))}
                       </select>
                     </div>
-
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Description (Optional)</label>
                       <textarea
@@ -381,8 +369,7 @@ const Assignments = () => {
                         rows={3}
                       />
                     </div>
-
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Deadline</label>
                         <input
@@ -393,7 +380,6 @@ const Assignments = () => {
                           required
                         />
                       </div>
-
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Priority</label>
                         <select
@@ -407,7 +393,6 @@ const Assignments = () => {
                         </select>
                       </div>
                     </div>
-
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
                       <select
@@ -421,7 +406,6 @@ const Assignments = () => {
                       </select>
                     </div>
                   </div>
-
                   <div className="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse">
                     <button
                       type="submit"
