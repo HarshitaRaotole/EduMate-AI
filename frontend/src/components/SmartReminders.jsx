@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import axios from "axios"
+import api from "../utils/api"
 import { CheckCircleIcon, ExclamationCircleIcon, InformationCircleIcon, ClockIcon } from "@heroicons/react/solid"
 
 const SmartReminders = () => {
@@ -18,7 +18,7 @@ const SmartReminders = () => {
     setError(null)
     try {
       // CORRECTED: Changed the endpoint to /api/reminders/smart
-      const response = await axios.get("/api/reminders/smart")
+      const response = await api.get("/reminders/smart") // The /api prefix is already in utils/api.js baseURL
       if (Array.isArray(response.data.reminders)) {
         // Access .reminders property
         setReminders(response.data.reminders)
