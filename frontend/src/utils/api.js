@@ -4,7 +4,7 @@ const api = axios.create({
   baseURL: import.meta.env.PROD
     ? "https://edumate-ai-slim.onrender.com/api" // Use full Render URL in production
     : "http://localhost:5000/api", // Use full URL in development
-  timeout: 30000, // IMPORTANT: Increased to 30 seconds to allow more time for AI response
+  timeout: 60000, // IMPORTANT: Increased to 60 seconds to allow more time for AI response and retries
 })
 
 // Request interceptor
