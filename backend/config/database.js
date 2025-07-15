@@ -1,16 +1,17 @@
 require("dotenv").config() // Ensure dotenv is loaded here
-
 const mysql = require("mysql2/promise")
 
 const dbConfig = {
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root", // This will now correctly use process.env.DB_USER
-  password: process.env.DB_PASSWORD || "", // This will now correctly use process.env.DB_PASSWORD
-  database: process.env.DB_NAME || "edumate_ai",
+  host: process.env.MYSQL_HOST || "localhost", // Use MYSQL_HOST
+  user: process.env.MYSQL_USER || "root", // Use MYSQL_USER
+  password: process.env.MYSQL_PASSWORD || "", // Use MYSQL_PASSWORD
+  database: process.env.MYSQL_DATABASE || "edumate_ai", // Use MYSQL_DATABASE
+  port: process.env.MYSQL_PORT || 3306, // ADDED: Use MYSQL_PORT, fallback to 3306
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
   // SSL configuration for production databases
+  // Keep this for now, but be aware it might need specific Railway SSL certs if issues persist
   ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
 }
 
