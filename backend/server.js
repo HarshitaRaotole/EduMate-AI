@@ -3,19 +3,17 @@ const cors = require("cors")
 const helmet = require("helmet")
 const rateLimit = require("express-rate-limit")
 require("dotenv").config()
-
 const authRoutes = require("./routes/auth")
 const subjectRoutes = require("./routes/subjects")
 const assignmentRoutes = require("./routes/assignments")
 const dashboardRoutes = require("./routes/dashboard")
 const chatRoutes = require("./routes/chat")
 const reminderRoutes = require("./routes/reminders") // ADDED: Import reminder routes
-
 // NEW: Import your specific authentication middleware
 const { authenticateToken } = require("./middleware/auth") // Adjust path if your auth.js is elsewhere
 
 const app = express()
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 5000 // Use Render's PORT, or fallback to 5000 for local development
 
 // Security middleware
 app.use(
@@ -23,7 +21,6 @@ app.use(
     contentSecurityPolicy: false,
   }),
 )
-
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "*",
@@ -74,13 +71,11 @@ app.use("*", (req, res) => {
   res.status(404).json({ error: "Route not found" })
 })
 
-// Export for Vercel
+// Export for Vercel (keep this for potential Vercel deployments later)
 module.exports = app
 
-// Start server only if not in Vercel environment
-if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`)
-    console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`)
-  })
-}
+// Start server for Render (remove the 'if' condition)
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`)
+  console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`)
+})
