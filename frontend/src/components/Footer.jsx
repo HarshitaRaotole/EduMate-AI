@@ -3,7 +3,7 @@ import { Twitter, Facebook, Linkedin, Rss } from "lucide-react" // Using Rss for
 const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white py-12">
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Features Section */}
         <div>
           <h3 className="text-lg font-semibold text-white mb-4 sm:mb-6">Features</h3>
@@ -83,7 +83,7 @@ const Footer = () => {
           </ul>
         </div>
       </div>
-      <div className="container mx-auto mt-8 text-center">
+      <div className="container mx-auto mt-8 text-center px-4 sm:px-6 lg:px-8">
         <p className="text-gray-400 text-sm">&copy; {new Date().getFullYear()} All rights reserved.</p>
       </div>
     </footer>

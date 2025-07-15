@@ -17,11 +17,13 @@ const SmartReminders = () => {
     setLoading(true)
     setError(null)
     try {
-      const response = await axios.get("/api/reminders") // Replace with your actual API endpoint
-      if (Array.isArray(response.data)) {
-        setReminders(response.data)
+      // CORRECTED: Changed the endpoint to /api/reminders/smart
+      const response = await axios.get("/api/reminders/smart")
+      if (Array.isArray(response.data.reminders)) {
+        // Access .reminders property
+        setReminders(response.data.reminders)
       } else {
-        console.warn("DEBUG (Frontend): API response was not an array:", response.data)
+        console.warn("DEBUG (Frontend): API response was not an array or missing 'reminders' property:", response.data)
         setReminders([]) // Set to empty array if data is not as expected
       }
       setLoading(false)
