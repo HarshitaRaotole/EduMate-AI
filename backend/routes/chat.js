@@ -1,14 +1,12 @@
 const express = require("express")
 const router = express.Router()
 const { GoogleGenerativeAI } = require("@google/generative-ai")
-const path = require("path") // Import path module
-// Load environment variables from the .env file in the backend directory
-// This ensures process.env.GOOGLE_API_KEY is available
-require("dotenv").config({ path: path.resolve(__dirname, "../.env") })
+// const path = require("path") // REMOVED: Not needed
+// require("dotenv").config({ path: path.resolve(__dirname, "../.env") }) // REMOVED: Not needed on Render
 
 // Initialize Gemini API
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
-// FIX: Changed model from 'gemini-pro' to 'gemini-1.5-flash'
+// CORRECTED: Use process.env.GEMINI_API_KEY to match Render's environment variable name
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 
 router.post("/simple", async (req, res) => {
@@ -17,8 +15,7 @@ router.post("/simple", async (req, res) => {
     if (!message) {
       return res.status(400).json({ error: "Message is required" })
     }
-    // Start a chat session with a system prompt (persona)
-    // Gemini handles system instructions as part of the chat history.
+
     const chat = model.startChat({
       history: [
         {
@@ -38,7 +35,7 @@ router.post("/simple", async (req, res) => {
         },
         {
           role: "model",
-          parts: [{ text: "Hello! How can I assist you with your studies today?" }], // Initial response from AI to set the tone
+          parts: [{ text: "Hello! How can I assist you with your studies today?" }],
         },
       ],
       generationConfig: {
@@ -46,17 +43,17 @@ router.post("/simple", async (req, res) => {
         temperature: 0.7,
       },
     })
-    // Send the user's message to Gemini
+
     const result = await chat.sendMessage(message)
     const response = await result.response
-    const text = response.text() // Extract the text content from the response
+    const text = response.text()
+
     res.json({
       success: true,
       response: text,
     })
   } catch (error) {
     console.error("Gemini Chat API Error:", error)
-    // Check for specific error messages from Gemini API
     if (error.message.includes("404 Not Found") || error.message.includes("model not found")) {
       res.status(404).json({
         success: false,
@@ -70,7 +67,7 @@ router.post("/simple", async (req, res) => {
     } else if (error.message.includes("API key not valid")) {
       res.status(401).json({
         success: false,
-        error: "Invalid Gemini API key. Please check your GOOGLE_API_KEY.",
+        error: "Invalid Gemini API key. Please check your GEMINI_API_KEY.", // Updated error message
       })
     } else {
       res.status(500).json({
