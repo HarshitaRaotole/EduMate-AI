@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import api from "../utils/api"
-import { CheckCircleIcon, ExclamationCircleIcon, InformationCircleIcon, ClockIcon } from "@heroicons/react/solid"
+import { CheckCircleIcon, ExclamationCircleIcon, InformationCircleIcon, ClockIcon } from "@heroicons/react/24/solid"
 
 const SmartReminders = () => {
   const [reminders, setReminders] = useState([])
@@ -17,14 +17,12 @@ const SmartReminders = () => {
     setLoading(true)
     setError(null)
     try {
-      // CORRECTED: Changed the endpoint to /api/reminders/smart
-      const response = await api.get("/reminders/smart") // The /api prefix is already in utils/api.js baseURL
+      const response = await api.get("/reminders/smart")
       if (Array.isArray(response.data.reminders)) {
-        // Access .reminders property
         setReminders(response.data.reminders)
       } else {
         console.warn("DEBUG (Frontend): API response was not an array or missing 'reminders' property:", response.data)
-        setReminders([]) // Set to empty array if data is not as expected
+        setReminders([])
       }
       setLoading(false)
     } catch (err) {
@@ -84,19 +82,18 @@ const SmartReminders = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-semibold mb-4">Smart Reminders</h1>
+      {/* Adjusted heading size for responsiveness */}
+      <h1 className="text-xl sm:text-2xl font-semibold mb-4">Smart Reminders</h1>
       {reminders.length === 0 ? (
         <div className="p-4 text-gray-500">No reminders found.</div>
       ) : (
         <div className="divide-y divide-gray-200">
           {reminders.map((reminder, index) => (
-            <div
-              key={index} // Use index as key since 'id' is not present in the backend response
-              className="flex items-start space-x-3 p-3 border-b border-gray-100 last:border-b-0"
-            >
+            <div key={index} className="flex items-start space-x-3 p-3 border-b border-gray-100 last:border-b-0">
               {getPriorityIcon(reminder.priority)}
               <div className="flex-1">
-                <h3 className="text-lg font-medium">{reminder.title}</h3>
+                {/* Adjusted title size for responsiveness */}
+                <h3 className="text-base sm:text-lg font-medium">{reminder.title}</h3>
                 <p className="text-sm text-gray-500">{reminder.description}</p>
                 <div className="mt-1 text-sm text-gray-700">
                   Due: {reminder.dueDate} at {reminder.time}

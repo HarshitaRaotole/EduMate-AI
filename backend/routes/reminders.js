@@ -6,7 +6,8 @@ const db = require("../config/database")
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 
-async function generateSmartReminders(assignments) {
+// Helper function to generate smart reminders using Gemini with retries
+async function generateSmartReminders(assignments, maxRetries = 3, delayMs = 1000) {
   console.log("DEBUG: Entering generateSmartReminders function.")
   if (!assignments || assignments.length === 0) {
     console.log("DEBUG: No assignments provided for reminder generation. Returning empty array.")
@@ -17,58 +18,67 @@ async function generateSmartReminders(assignments) {
     .join("\n")
 
   const prompt = `You are an academic assistant. Based on the following list of assignments, generate 3-5 smart, actionable reminders for a student. Focus on proactive steps, study tips, or time management advice related to these assignments.
-    Assignments:
-  ${assignmentList}
-    Format your response as a JSON array of objects, where each object has 'title', 'description', 'dueDate' (YYYY-MM-DD), 'time' (HH:MM AM/PM), 'priority' (urgent, high, medium, low), and 'category' (Study, Assignment, Planning, Wellness). Ensure due dates are relevant to the assignments provided. If an assignment is due soon, suggest an urgent reminder. If no specific time is relevant, use a default like "09:00 AM".
-    Example JSON structure:
-  [
-    {
-      "title": "Start research for History Essay",
-      "description": "Begin gathering sources and outlining for the upcoming essay.",
-      "dueDate": "2025-07-20",
-      "time": "09:00 AM",
-      "priority": "high",
-      "category": "Assignment"
-    }
-  ]`
+  Assignments:
+${assignmentList}
+  Format your response as a JSON array of objects, where each object has 'title', 'description', 'dueDate' (YYYY-MM-DD), 'time' (HH:MM AM/PM), 'priority' (urgent, high, medium, low), and 'category' (Study, Assignment, Planning, Wellness). Ensure due dates are relevant to the assignments provided. If an assignment is due soon, suggest an urgent reminder. If no specific time is relevant, use a default like "09:00 AM".
+  Example JSON structure:
+[
+  {
+    "title": "Start research for History Essay",
+    "description": "Begin gathering sources and outlining for the upcoming essay.",
+    "dueDate": "2025-07-20",
+    "time": "09:00 AM",
+    "priority": "high",
+    "category": "Assignment"
+  }
+]`
 
-  console.log("DEBUG: Sending prompt to Gemini API...")
-  try {
-    const result = await model.generateContent(prompt)
-    const response = await result.response
-    const text = response.text()
-    console.log("DEBUG: Raw Gemini response text:", text)
+  for (let i = 0; i < maxRetries; i++) {
+    console.log(`DEBUG: Sending prompt to Gemini API (Attempt ${i + 1}/${maxRetries})...`)
+    try {
+      const result = await model.generateContent(prompt)
+      const response = await result.response
+      const text = response.text()
+      console.log("DEBUG: Raw Gemini response text:", text)
 
-    let jsonString = text.replace(/```json\n|```/g, "").trim()
-    if (!jsonString.startsWith("[") || !jsonString.endsWith("]")) {
-      console.warn("Gemini response was not a clean JSON array, attempting to fix:", jsonString)
-      const match = jsonString.match(/\[.*\]/s)
-      if (match) {
-        jsonString = match[0]
-        console.log("DEBUG: Fixed JSON string:", jsonString)
+      let jsonString = text.replace(/```json\n|```/g, "").trim()
+      if (!jsonString.startsWith("[") || !jsonString.endsWith("]")) {
+        console.warn("Gemini response was not a clean JSON array, attempting to fix:", jsonString)
+        const match = jsonString.match(/\[.*\]/s)
+        if (match) {
+          jsonString = match[0]
+          console.log("DEBUG: Fixed JSON string:", jsonString)
+        } else {
+          throw new Error("Gemini did not return a valid JSON array for reminders.")
+        }
+      }
+      const parsedReminders = JSON.parse(jsonString)
+      console.log("DEBUG: Successfully parsed Gemini response:", parsedReminders)
+      return parsedReminders
+    } catch (error) {
+      console.error(`ERROR: Error generating reminders with Gemini (Attempt ${i + 1}/${maxRetries}):`, error)
+      if (i < maxRetries - 1) {
+        console.log(`DEBUG: Retrying in ${delayMs / 1000} seconds...`)
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
       } else {
-        throw new Error("Gemini did not return a valid JSON array for reminders.")
+        console.error("ERROR: All Gemini API retries failed. Returning fallback reminders.")
       }
     }
-    const parsedReminders = JSON.parse(jsonString)
-    console.log("DEBUG: Successfully parsed Gemini response:", parsedReminders)
-    return parsedReminders
-  } catch (error) {
-    console.error("ERROR: Error generating reminders with Gemini:", error)
-    return [
-      {
-        title: "Check your assignment deadlines (Fallback)",
-        description: "Review your upcoming assignments to plan your week.",
-        dueDate: new Date().toISOString().split("T")[0],
-        time: "09:00 AM",
-        priority: "medium",
-        category: "Planning",
-      },
-    ]
   }
+
+  // Fallback if all retries fail
+  return [
+    {
+      title: "Check your assignment deadlines (Fallback)",
+      description: "Review your upcoming assignments to plan your week.",
+      dueDate: new Date().toISOString().split("T")[0],
+      time: "09:00 AM",
+      priority: "medium",
+      category: "Planning",
+    },
+  ]
 }
 
-// CORRECTED: Changed the route path from "/api/reminders/smart" to "/smart"
 router.get("/smart", async (req, res) => {
   console.log("DEBUG: Received request for /api/reminders/smart")
   const userId = req.user?.id
