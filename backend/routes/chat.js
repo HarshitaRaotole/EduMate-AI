@@ -6,7 +6,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai")
 
 // Initialize Gemini API
 // CORRECTED: Use process.env.GEMINI_API_KEY to match Render's environment variable name
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 
 router.post("/simple", async (req, res) => {

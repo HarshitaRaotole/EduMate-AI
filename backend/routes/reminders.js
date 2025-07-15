@@ -9,7 +9,8 @@ const db = require("../config/database") // Adjust path if necessary
 
 // Initialize Gemini API
 // CORRECTED: Use process.env.GEMINI_API_KEY to match Render's environment variable name
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+// Ensure this line uses GOOGLE_API_KEY
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }) // Using gemini-1.5-flash
 
 // Helper function to generate smart reminders using Gemini
