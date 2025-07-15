@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { BookOpen, Plus, Trash2, Loader2, Calendar, Star, Palette } from "lucide-react"
+import { BookOpen, Plus, Trash2, Loader2, Star, Palette } from "lucide-react"
 import api from "../utils/api"
 import toast from "react-hot-toast"
 import LoadingSpinner from "../components/LoadingSpinner"
@@ -14,10 +14,8 @@ const Subjects = () => {
     name: "",
     description: "",
     color: "#3B82F6",
-    start_date: "",
   })
   const [submitting, setSubmitting] = useState(false)
-
   const colors = [
     { color: "#3B82F6", name: "Blue" },
     { color: "#EF4444", name: "Red" },
@@ -47,12 +45,11 @@ const Subjects = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
-
     try {
       const response = await api.post("/subjects", formData)
       setSubjects([response.data.subject, ...subjects])
       setShowModal(false)
-      setFormData({ name: "", description: "", color: "#3B82F6", start_date: "" })
+      setFormData({ name: "", description: "", color: "#3B82F6" })
       toast.success("Subject created successfully!")
     } catch (error) {
       toast.error(error.response?.data?.error || "Failed to create subject")
@@ -65,7 +62,6 @@ const Subjects = () => {
     if (!confirm("Are you sure you want to delete this subject? This will also delete all associated assignments.")) {
       return
     }
-
     try {
       await api.delete(`/subjects/${id}`)
       setSubjects(subjects.filter((subject) => subject.id !== id))
@@ -73,15 +69,6 @@ const Subjects = () => {
     } catch (error) {
       toast.error("Failed to delete subject")
     }
-  }
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "No date set"
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
   }
 
   if (loading) {
@@ -107,7 +94,6 @@ const Subjects = () => {
             Add Subject
           </button>
         </div>
-
         {subjects.length > 0 ? (
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
             {subjects.map((subject) => (
@@ -127,22 +113,13 @@ const Subjects = () => {
                     <Trash2 className="h-5 w-5 text-red-600" />
                   </button>
                 </div>
-
                 {subject.description && <p className="text-gray-600 mb-4 leading-relaxed">{subject.description}</p>}
-
                 <div className="space-y-3">
                   <div className="flex items-center text-sm text-gray-500">
                     <BookOpen className="mr-2 h-4 w-4" />
                     Created {new Date(subject.created_at).toLocaleDateString()}
                   </div>
-                  {subject.start_date && (
-                    <div className="flex items-center text-sm text-blue-600 font-medium">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      Started {formatDate(subject.start_date)}
-                    </div>
-                  )}
                 </div>
-
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <div className="flex items-center justify-between">
                     <div
@@ -175,7 +152,6 @@ const Subjects = () => {
             </button>
           </div>
         )}
-
         {/* Enhanced Modal */}
         {showModal && (
           <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -184,7 +160,6 @@ const Subjects = () => {
                 className="fixed inset-0 bg-black bg-opacity-50 transition-opacity backdrop-blur-sm"
                 onClick={() => setShowModal(false)}
               />
-
               <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <form onSubmit={handleSubmit}>
                   <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
@@ -193,7 +168,6 @@ const Subjects = () => {
                       Add New Subject
                     </h3>
                   </div>
-
                   <div className="bg-white px-6 py-6 space-y-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Subject Name</label>
@@ -206,7 +180,6 @@ const Subjects = () => {
                         required
                       />
                     </div>
-
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Description (Optional)</label>
                       <textarea
@@ -217,17 +190,6 @@ const Subjects = () => {
                         rows={3}
                       />
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Start Date (Optional)</label>
-                      <input
-                        type="date"
-                        value={formData.start_date}
-                        onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                      />
-                    </div>
-
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
                         <Palette className="mr-2 h-4 w-4" />
@@ -255,7 +217,6 @@ const Subjects = () => {
                       </div>
                     </div>
                   </div>
-
                   <div className="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse">
                     <button
                       type="submit"

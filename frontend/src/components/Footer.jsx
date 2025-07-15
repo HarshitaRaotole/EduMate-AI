@@ -149,7 +149,7 @@ const Footer = () => {
             <div className="text-center md:text-right">
               <p className="text-sm sm:text-base text-gray-400">© 2024 EduMateAI. All rights reserved.</p>
               <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                Created with ❤️ by <span className="text-blue-400 font-medium">Harshita Raotole</span>
+                Developed with ❤️ by <span className="text-blue-400 font-medium">Harshita Raotole</span>
               </p>
               <p className="text-xs sm:text-sm text-gray-500 mt-1">
                 Empowering students to achieve academic excellence through intelligent planning.

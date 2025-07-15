@@ -1,6 +1,7 @@
 -- Create database
-CREATE DATABASE IF NOT EXISTS edumate_ai;
-USE edumate_ai;
+DROP TABLE IF EXISTS assignments;
+DROP TABLE IF EXISTS subjects;
+DROP TABLE IF EXISTS users;
 
 -- Users table
 CREATE TABLE users (
