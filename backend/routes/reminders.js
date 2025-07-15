@@ -1,19 +1,11 @@
 const express = require("express")
 const router = express.Router()
 const { GoogleGenerativeAI } = require("@google/generative-ai")
-// const path = require("path") // No longer needed if dotenv config is removed
-// require("dotenv").config({ path: path.resolve(__dirname, "../.env") }) // REMOVED: This line is not needed on Render
+const db = require("../config/database")
 
-// Assuming your database connection is available via a utility
-const db = require("../config/database") // Adjust path if necessary
-
-// Initialize Gemini API
-// CORRECTED: Use process.env.GEMINI_API_KEY to match Render's environment variable name
-// Ensure this line uses GOOGLE_API_KEY
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }) // Using gemini-1.5-flash
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 
-// Helper function to generate smart reminders using Gemini
 async function generateSmartReminders(assignments) {
   console.log("DEBUG: Entering generateSmartReminders function.")
   if (!assignments || assignments.length === 0) {
@@ -76,9 +68,9 @@ async function generateSmartReminders(assignments) {
   }
 }
 
-// Route to get smart reminders for a user
+// CORRECTED: Changed the route path from "/api/reminders/smart" to "/smart"
 router.get("/smart", async (req, res) => {
-  console.log("DEBUG: Received request for /reminders/smart")
+  console.log("DEBUG: Received request for /api/reminders/smart")
   const userId = req.user?.id
   if (!userId) {
     console.error("ERROR: Unauthorized - User ID not found in request.user. Token might be missing or invalid.")
@@ -106,7 +98,7 @@ router.get("/smart", async (req, res) => {
     console.log("DEBUG: Smart reminders generated:", smartReminders)
     res.json({ success: true, reminders: smartReminders })
   } catch (error) {
-    console.error("ERROR: Error fetching smart reminders in /smart route:", error)
+    console.error("ERROR: Error fetching smart reminders in /api/reminders/smart route:", error)
     res.status(500).json({ success: false, error: "Failed to fetch smart reminders." })
   }
 })
